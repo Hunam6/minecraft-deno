@@ -1,3 +1,5 @@
+import {toUint8Array} from 'https://deno.land/x/base64/mod.ts'
+
 const checkAPI = async (): Promise<string | boolean> => {
   return await MCStatus().then((res: Record<string, string>[]) => {
     if (res[5]['api.mojang.com'] === 'green') return 'api.mojang.com is down.'
@@ -7,6 +9,7 @@ const checkAPI = async (): Promise<string | boolean> => {
 
 const infos = async (username: string | string[], prop: string) => {
   //TODO: check for too long array (see doc)
+  //TODO: add return type
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
       if (typeof username === 'string')
@@ -32,12 +35,34 @@ const infos = async (username: string | string[], prop: string) => {
   })
 }
 
+const textures = async (username: string, prop: string) => {
+  return await checkAPI().then(async (on: boolean | string) => {
+    if (on) {
+      if (!/^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i.test(username)) username = await UUID(username).then(res => <string>res)
+      return await fetch(`https://sessionserver.mojang.com/session/minecraft/profile/${username}`)
+        .then(res => res.json())
+        .then(res => (res.path === "/session/minecraft/profile/The player doesn't exist" ? "The player doesn't exist" : res))
+        .then(res => (res.path === '/session/minecraft/profile/undefined' ? 'Invalid input, the inputted UUID should not have any dash' : res))
+        .then(res => JSON.parse(new TextDecoder().decode(toUint8Array(res.properties[0].value))).textures[prop] === undefined ? "The player doesn't have any cape" :JSON.parse(new TextDecoder().decode(toUint8Array(res.properties[0].value))).textures[prop].url)
+        .catch(() => "The player doesn't exist")
+    } else return on
+  })
+}
+
 export const MCStatus = async (): Promise<Record<string, string>[]> => {
   return await fetch('https://status.mojang.com/check').then(response => response.json())
 }
 
 export const UUID = async (username: string | string[]): Promise<string | Record<string, string>[]> => {
   return await infos(username, 'id')
+}
+
+export const skin = async (username: string) => {
+  return await textures(username, 'SKIN')
+}
+
+export const cape = async (username: string) => {
+  return await textures(username, 'CAPE')
 }
 
 export const formatName = async (username: string | string[]): Promise<string | Record<string, string>[]> => {
@@ -50,12 +75,12 @@ export const nameHistory = async (username: string) => {
       if (!/^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i.test(username)) username = await UUID(username).then(res => <string>res)
       return await fetch(`https://api.mojang.com/user/profiles/${username}/names`)
         .then(res => res.json())
+        .then(res => (res.errorMessage === "Invalid ID characters: The%20player%20doesn't%20exist" ? "The player doesn't exist" : res))
+        .then(res => (res.errorMessage === 'Invalid ID size: undefined' ? 'Invalid input, the inputted UUID should not have any dash' : res))
         .then(res => {
           res.forEach((el: Record<string, string | number | Date>) => (el.changedToAt === undefined ? 0 : (el.changedToAt = new Date(el.changedToAt))))
           return res
         })
-        .then(res => (res.errorMessage === "Invalid ID characters: The%20player%20doesn't%20exist" ? "The player doesn't exist" : res))
-        .then(res => (res.errorMessage === 'Invalid ID size: undefined' ? 'Invalid input, the inputted UUID should not have any dash' : res))
         .catch(() => "The player doesn't exist")
     } else return on
   })
