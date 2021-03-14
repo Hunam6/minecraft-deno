@@ -18,7 +18,7 @@ const infos = async (username: string | string[], prop: string) => {
           .then(res => res[prop])
           .catch(() => "The player doesn't exist")
       else
-        return await fetch(`https://api.mojang.com/profiles/minecraft`, {
+        return await fetch('https://api.mojang.com/profiles/minecraft', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ const textures = async (username: string, prop: string) => {
         .then(res => res.json())
         .then(res => (res.path === "/session/minecraft/profile/The player doesn't exist" ? "The player doesn't exist" : res))
         .then(res => (res.path === '/session/minecraft/profile/undefined' ? 'Invalid input, the inputted UUID should not have any dash' : res))
-        .then(res => JSON.parse(new TextDecoder().decode(toUint8Array(res.properties[0].value))).textures[prop] === undefined ? "The player doesn't have any cape" :JSON.parse(new TextDecoder().decode(toUint8Array(res.properties[0].value))).textures[prop].url)
+        .then(res => (JSON.parse(new TextDecoder().decode(toUint8Array(res.properties[0].value))).textures[prop] === undefined ? "The player doesn't have any cape" : JSON.parse(new TextDecoder().decode(toUint8Array(res.properties[0].value))).textures[prop].url))
         .catch(() => "The player doesn't exist")
     } else return on
   })
@@ -83,5 +83,15 @@ export const nameHistory = async (username: string) => {
         })
         .catch(() => "The player doesn't exist")
     } else return on
+  })
+}
+
+export const blockedServers = async () => {
+  return await checkAPI().then(async (on: boolean | string) => {
+    if (on)
+      return await fetch('https://sessionserver.mojang.com/blockedservers')
+        .then(res => res.text())
+        .then(res => res.split('\n'))
+    else return on
   })
 }

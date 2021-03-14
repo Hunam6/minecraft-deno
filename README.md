@@ -1,5 +1,5 @@
 <h1 align='center'><ins>minecraft-deno</ins></h1>
-<p align='center'><strong>A Minecraft API wrapper for Deno</strong></p>
+<p align='center'><strong>A Minecraft/Mojang API wrapper for Deno</strong></p>
 
 ---
 
