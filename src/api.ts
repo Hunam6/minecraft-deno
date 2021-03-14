@@ -7,10 +7,9 @@ const checkAPI = async (): Promise<string | boolean> => {
   })
 }
 
-const infos = async (username: string | string[], prop: string) => {
-  //TODO: add return type
+const infos = async (username: string | string[], prop: string): Promise<string | Record<string, string>[]> => {
   return await checkAPI().then(async (on: boolean | string) => {
-    if (on) {
+    if (on)
       if (typeof username === 'string')
         return await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`)
           .then(res => res.json())
@@ -30,12 +29,12 @@ const infos = async (username: string | string[], prop: string) => {
             res.forEach((el: Record<string, string>) => out.push(el[prop]))
             return out
           })
-        else return 'The array length cannot exceed 10'
-    } else return on
+      else return 'The array length cannot exceed 10'
+    else return on
   })
 }
 
-const textures = async (username: string, prop: string) => {
+const textures = async (username: string, prop: string): Promise<string> => {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
       if (!/^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i.test(username)) username = await UUID(username).then(res => <string>res)
@@ -49,7 +48,7 @@ const textures = async (username: string, prop: string) => {
   })
 }
 
-const stats = async (prop: string) => {
+const stats = async (prop: string): Promise<Record<string, number>> => {
   return await fetch('https://api.mojang.com/orders/statistics', {
     method: 'POST',
     body: JSON.stringify({
@@ -73,15 +72,15 @@ export const formatName = async (username: string | string[]): Promise<string | 
   return await infos(username, 'name')
 }
 
-export const skin = async (username: string) => {
+export const skin = async (username: string): Promise<string> => {
   return await textures(username, 'SKIN')
 }
 
-export const cape = async (username: string) => {
+export const cape = async (username: string): Promise<string> => {
   return await textures(username, 'CAPE')
 }
 
-export const nameHistory = async (username: string) => {
+export const nameHistory = async (username: string): Promise<Record<string, string | Date>[]> => {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
       if (!/^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i.test(username)) username = await UUID(username).then(res => <string>res)
@@ -98,7 +97,7 @@ export const nameHistory = async (username: string) => {
   })
 }
 
-export const blockedServers = async () => {
+export const blockedServers = async (): Promise<string[] | boolean | string> => {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on)
       return await fetch('https://sessionserver.mojang.com/blockedservers')
@@ -108,9 +107,9 @@ export const blockedServers = async () => {
   })
 }
 
-export const MCStats = async () => {
+export const MCStats = async (): Promise<Record<string, Record<string, number>> | string | boolean> => {
   return await checkAPI().then(async (on: boolean | string) => {
-    if (on) {
+    if (on)
       return {
         item_sold_minecraft: await stats('item_sold_minecraft'),
         prepaid_card_redeemed_minecraft: await stats('prepaid_card_redeemed_minecraft'),
@@ -119,6 +118,6 @@ export const MCStats = async () => {
         prepaid_card_redeemed_cobalt: await stats('prepaid_card_redeemed_cobalt'),
         item_sold_dungeons: await stats('item_sold_dungeons')
       }
-    } else return on
+    else return on
   })
 }
