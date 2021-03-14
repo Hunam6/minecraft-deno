@@ -12,7 +12,7 @@ nameHistory('_Hunam').then(res => console.log(res))
 
 **Output:**
 
-```json
+```typescript
 [
   { name: "R2D2_BB8_64" },
   { name: "king_jump", changedToAt: 2017-03-25T10:04:40.000Z },
