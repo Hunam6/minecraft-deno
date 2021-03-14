@@ -49,6 +49,18 @@ const textures = async (username: string, prop: string) => {
   })
 }
 
+const stats = async (prop: string) => {
+  return await fetch('https://api.mojang.com/orders/statistics', {
+    method: 'POST',
+    body: JSON.stringify({
+      metricKeys: [prop]
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(res => res.json())
+}
+
 export const MCStatus = async (): Promise<Record<string, string>[]> => {
   return await fetch('https://status.mojang.com/check').then(response => response.json())
 }
@@ -93,5 +105,20 @@ export const blockedServers = async () => {
         .then(res => res.text())
         .then(res => res.split('\n'))
     else return on
+  })
+}
+
+export const MCStats = async () => {
+  return await checkAPI().then(async (on: boolean | string) => {
+    if (on) {
+      return {
+        item_sold_minecraft: await stats('item_sold_minecraft'),
+        prepaid_card_redeemed_minecraft: await stats('prepaid_card_redeemed_minecraft'),
+        item_sold_cobalt: await stats('item_sold_cobalt'),
+        item_sold_scrolls: await stats('item_sold_scrolls'),
+        prepaid_card_redeemed_cobalt: await stats('prepaid_card_redeemed_cobalt'),
+        item_sold_dungeons: await stats('item_sold_dungeons')
+      }
+    } else return on
   })
 }
