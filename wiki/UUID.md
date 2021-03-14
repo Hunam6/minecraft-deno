@@ -2,7 +2,7 @@
 
 ---
 
-This function returns the UUID(s) of the inputted username(s). The `username` input is an username or an array of usernames.
+This function returns the UUID(s) of the inputted username(s). The `username` input is an username or an array of usernames smaller than 10.
 
 ```typescript
 UUID(username: string | string[])

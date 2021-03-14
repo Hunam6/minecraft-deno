@@ -8,7 +8,6 @@ const checkAPI = async (): Promise<string | boolean> => {
 }
 
 const infos = async (username: string | string[], prop: string) => {
-  //TODO: check for too long array (see doc)
   //TODO: add return type
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
@@ -17,7 +16,7 @@ const infos = async (username: string | string[], prop: string) => {
           .then(res => res.json())
           .then(res => res[prop])
           .catch(() => "The player doesn't exist")
-      else
+      else if (username.length < 11)
         return await fetch('https://api.mojang.com/profiles/minecraft', {
           method: 'POST',
           headers: {
@@ -31,6 +30,7 @@ const infos = async (username: string | string[], prop: string) => {
             res.forEach((el: Record<string, string>) => out.push(el[prop]))
             return out
           })
+        else return 'The array length cannot exceed 10'
     } else return on
   })
 }
