@@ -57,16 +57,16 @@ export const UUID = async (username: string | string[]): Promise<string | Record
   return await infos(username, 'id')
 }
 
+export const formatName = async (username: string | string[]): Promise<string | Record<string, string>[]> => {
+  return await infos(username, 'name')
+}
+
 export const skin = async (username: string) => {
   return await textures(username, 'SKIN')
 }
 
 export const cape = async (username: string) => {
   return await textures(username, 'CAPE')
-}
-
-export const formatName = async (username: string | string[]): Promise<string | Record<string, string>[]> => {
-  return await infos(username, 'name')
 }
 
 export const nameHistory = async (username: string) => {
