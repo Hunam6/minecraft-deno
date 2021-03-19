@@ -73,7 +73,6 @@ async function req(method: string, url: string, headers: Record<string, string> 
 
 /**
  * This function returns the status of various Mojang services.
- * __
  *
  *
  *     // MCStatus()
@@ -94,7 +93,6 @@ export async function MCStatus(): Promise<Record<string, string>[]> {
 
 /**
  * This function returns the UUID(s) of the inputted username(s).
- * __
  * **username** is an username or an array of usernames smaller than 10
  *
  *
@@ -110,7 +108,6 @@ export async function UUID(username: string | string[]): Promise<string | Record
 
 /**
  * This function returns the formatted username(s) of the inputted username(s).
- * __
  * **username** is an username or an array of usernames smaller than 10
  *
  *
@@ -126,7 +123,6 @@ export async function formatName(username: string | string[]): Promise<string | 
 
 /**
  * This function returns the skin texture file of the inputted username.
- * __
  * **username** is an username or an UUID
  *
  *
@@ -139,7 +135,6 @@ export async function skin(username: string): Promise<string> {
 
 /**
  * This function returns the cape texture file of the inputted username.
- * __
  * **username** is an username or an UUID
  *
  *
@@ -152,10 +147,10 @@ export async function cape(username: string): Promise<string> {
 
 /**
  * This function returns the names history of an account.
- * __
  * **username** is an username or an UUID
  *
  *
+ *     // nameHistory('_hunam')
  *     [
  *       { name: "R2D2_BB8_64" },
  *       { name: "king_jump", changedToAt: 2017-03-25T10:04:40.000Z },
@@ -260,7 +255,6 @@ export async function login(email: string, password: string, secQues: string[] =
 
 /**
  * This function returns an array of SHA1 hashes used to check server addresses against when the client tries to connect.
- * __
  *
  *
  *     // blockedServers()
@@ -289,8 +283,7 @@ export async function blockedServers(): Promise<string[] | boolean | string> {
 
 /**
  * This function returns statistics on the sales of Minecraft.
- * __
- *
+ * 
  *
  *     // MCStats()
  *     {
