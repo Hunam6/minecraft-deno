@@ -79,6 +79,18 @@ export async function UUID(username: string | string[]): Promise<string | Record
   return await infos(username, 'id')
 }
 
+/*
+This function returns the formatted username(s) of the inputted username(s).
+
+@username is an username or an array of usernames smaller than 10
+
+Example output:
+  // formatName(['_hunam', 'syriusgang'])
+  [ 
+    "SyriusGang",
+    "_Hunam"
+  ]
+*/
 export async function formatName(username: string | string[]): Promise<string | Record<string, string>[]> {
   return await infos(username, 'name')
 }
