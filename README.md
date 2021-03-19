@@ -22,11 +22,11 @@ nameHistory('_Hunam').then(res => console.log(res))
 
 ### Documentation
 
-You can view the full documentation on this repository's [wiki](https://github.com/Hunam6/minecraft-deno/wiki).
+You can view the full documentation on [Deno doc](https://doc.deno.land/https/deno.land/x/minecraft/mod.ts).
 
 ### Contributing
 
-Hi and welcome! If you want to contribute to this project you can do so by many different ways, add new features, fix bugs, or improve the [documentation](https://github.com/Hunam6/minecraft-deno/wiki).
+Hi and welcome! If you want to contribute to this project you can do so by many different ways, add new features, fix bugs, or improve the [documentation](https://doc.deno.land/https/deno.land/x/minecraft/mod.ts).
 Just remember to follow the [GitHub Community Guidelines](https://docs.github.com/articles/github-community-guidelines).
 
 ### License
