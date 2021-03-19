@@ -1,4 +1,5 @@
 import {toUint8Array} from 'https://deno.land/x/base64/mod.ts'
+import {createError} from 'https://deno.land/x/cstack/mod.ts'
 
 const checkAPI = async (): Promise<string | boolean> => {
   return await MCStatus().then((res: Record<string, string>[]) => {
@@ -60,6 +61,16 @@ const stats = async (prop: string): Promise<Record<string, number>> => {
   }).then(res => res.json())
 }
 
+const req = async (method: string, url: string, headers: Record<string, string> = {}, body: Record<string, string> = {}) => {
+  const options = {
+    method: method,
+    headers: headers,
+    body: JSON.stringify(body)
+  }
+  if (Object.keys(body).length === 0) options.body = ''
+  return await fetch(url, options)
+}
+
 export const MCStatus = async (): Promise<Record<string, string>[]> => {
   return await fetch('https://status.mojang.com/check').then(response => response.json())
 }
@@ -94,6 +105,82 @@ export const nameHistory = async (username: string): Promise<Record<string, stri
         })
         .catch(() => "The player doesn't exist")
     } else return on
+  })
+}
+
+export const login = async (email: string, password: string, secQues: string[] = []) => {
+  let token: string
+  let needed = true
+  return await MCStatus().then(res => {
+    if (res[3]['authserver.mojang.com'] !== 'green') return 'authserver.mojang.com is down.'
+    else
+      return req(
+        'POST',
+        'https://authserver.mojang.com/authenticate',
+        {
+          'Content-Type': 'application/json'
+        },
+        {
+          username: email,
+          password: password
+        }
+      )
+        .then(res => res.json())
+        .then(res => {
+          if (res.errorMessage !== undefined) throw createError(new Error(res.errorMessage))
+          else token = res.accessToken
+        })
+        .then(() =>
+          req('GET', 'https://api.mojang.com/user/security/location', {
+            Authorization: `Bearer ${token}`
+          })
+        )
+        .then(res => res.text())
+        .then(res => (res === '' ? (needed = false) : ''))
+        .then(() =>
+          needed
+            ? req('GET', 'https://api.mojang.com/user/security/challenges', {
+                Authorization: `Bearer ${token}`
+              }).then(res => res.json())
+            : ''
+        )
+        .then(res => {
+          if (needed) {
+            if (secQues.length === 0) {
+              res.forEach((el: Record<string, Record<string, string>>) => secQues.push(el.question.question))
+              return <any>secQues
+            }
+            const answers: Record<string, string | number>[] = []
+            res.forEach((el: Record<string, Record<string, string>>, i: number) =>
+              answers.push({
+                id: el.answer.id,
+                answer: secQues[i]
+              })
+            )
+            return answers
+          }
+          return
+        })
+        .then(res => {
+          if (needed) {
+            if (Array.isArray(res) && res.every(item => typeof item === 'string')) return res
+            return req(
+              'POST',
+              'https://api.mojang.com/user/security/location',
+              {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              res
+            ).then(res => (res.status === 204 ? '' : res.json()))
+          }
+          return ''
+        })
+        .then(res => {
+          if (Array.isArray(res) && res.every(item => typeof item === 'string')) return res
+          if (res.errorMessage !== undefined) throw createError(new Error(res.errorMessage))
+          else return token
+        })
   })
 }
 
