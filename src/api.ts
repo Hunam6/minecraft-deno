@@ -71,38 +71,97 @@ async function req(method: string, url: string, headers: Record<string, string> 
   return await fetch(url, options)
 }
 
+/**
+ * This function returns the status of various Mojang services.
+ * __
+ *
+ *
+ *     // MCStatus()
+ *     [
+ *       { "minecraft.net": "yellow" },
+ *       { "session.minecraft.net": "green" },
+ *       { "account.mojang.com": "green" },
+ *       { "authserver.mojang.com": "green" },
+ *       { "sessionserver.mojang.com": "red" },
+ *       { "api.mojang.com": "green" },
+ *       { "textures.minecraft.net": "green" },
+ *       { "mojang.com": "green" }
+ *     ]
+ */
 export async function MCStatus(): Promise<Record<string, string>[]> {
   return await fetch('https://status.mojang.com/check').then(response => response.json())
 }
 
+/**
+ * This function returns the UUID(s) of the inputted username(s).
+ * __
+ * **username** is an username or an array of usernames smaller than 10
+ *
+ *
+ *     // UUID(['_hunam', 'syriusgang'])
+ *     [ 
+ *       "e5a310a065c44c2e9baeea4712481b6c",
+ *       "21e83fbae7a8403fbd7bf34060ca8cba"
+ *     ]
+ */
 export async function UUID(username: string | string[]): Promise<string | Record<string, string>[]> {
   return await infos(username, 'id')
 }
 
 /**
  * This function returns the formatted username(s) of the inputted username(s).
- *
+ * __
  * **username** is an username or an array of usernames smaller than 10
  *
  *
- *       // formatName(['_hunam', 'syriusgang'])
- *       [
- *         "SyriusGang",
- *         "_Hunam"
- *       ]
+ *     // formatName(['_hunam', 'syriusgang'])
+ *     [
+ *       "SyriusGang",
+ *       "_Hunam"
+ *     ]
  */
 export async function formatName(username: string | string[]): Promise<string | Record<string, string>[]> {
   return await infos(username, 'name')
 }
 
+/**
+ * This function returns the skin texture file of the inputted username.
+ * __
+ * **username** is an username or an UUID
+ *
+ *
+ *     // skin('_hunam')
+ *     "http://textures.minecraft.net/texture/a1b811ea2c2691d2e8c5e125b8d2e8d579b70592d0067ab27325445c40e4867c"
+ */
 export async function skin(username: string): Promise<string> {
   return await textures(username, 'SKIN')
 }
 
+/**
+ * This function returns the cape texture file of the inputted username.
+ * __
+ * **username** is an username or an UUID
+ *
+ *
+ *     // cape('ad')
+ *     "http://textures.minecraft.net/texture/e7dfea16dc83c97df01a12fabbd1216359c0cd0ea42f9999b6e97c584963e980"
+ */
 export async function cape(username: string): Promise<string> {
   return await textures(username, 'CAPE')
 }
 
+/**
+ * This function returns the names history of an account.
+ * __
+ * **username** is an username or an UUID
+ *
+ *
+ *     [
+ *       { name: "R2D2_BB8_64" },
+ *       { name: "king_jump", changedToAt: 2017-03-25T10:04:40.000Z },
+ *       { name: "_Hunam", changedToAt: 2018-08-30T09:23:49.000Z }
+ *     ]
+ */
 export async function nameHistory(username: string): Promise<Record<string, string | Date>[]> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
@@ -120,6 +179,9 @@ export async function nameHistory(username: string): Promise<Record<string, stri
   })
 }
 
+/**
+ * WIP
+ */
 export async function login(email: string, password: string, secQues: string[] = []) {
   let token: string
   let needed = true
@@ -196,6 +258,25 @@ export async function login(email: string, password: string, secQues: string[] =
   })
 }
 
+/**
+ * This function returns an array of SHA1 hashes used to check server addresses against when the client tries to connect.
+ * __
+ *
+ *
+ *     // blockedServers()
+ *     [
+ *       "c5c03d9bad5c5ad25deb64600b9cd900312d4d74",
+ *       "72fd29f430c91c583bb7216fe673191dc25a7e18",
+ *       "e38e82a54b47c7c5394670bb34b3aa941219959b",
+ *       "d1bab7fcb1d44a0ad1084fb201006d79d05ae6e7",
+ *       "1822a17662c7e0cf3b815c257d32c2aa0245fad0",
+ *       "7905e1eeee5d57268bb9cbea2e0acbb5421a667b",
+ *       "56c7a4ccff309d6eb3c5737fe9509c3555e7f5fa",
+ *       "cf2f874a649da0118f717f7edb1f5fffcbae8c6b",
+ *       "c800614f07e155ca842e23f84c6a553973ccdb1f",
+ *       ... 2241 more items
+ *     ]
+ */
 export async function blockedServers(): Promise<string[] | boolean | string> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on)
@@ -206,6 +287,21 @@ export async function blockedServers(): Promise<string[] | boolean | string> {
   })
 }
 
+/**
+ * This function returns statistics on the sales of Minecraft.
+ * __
+ *
+ *
+ *     // MCStats()
+ *     {
+ *       item_sold_minecraft: { total: 36124314, last24h: 25940, saleVelocityPerSeconds: 0.34 },
+ *       prepaid_card_redeemed_minecraft: { total: 4782079, last24h: 0, saleVelocityPerSeconds: 0 },
+ *       item_sold_cobalt: { total: 41722, last24h: 0, saleVelocityPerSeconds: 0 },
+ *       item_sold_scrolls: { total: 132261, last24h: 0, saleVelocityPerSeconds: 0 },
+ *       prepaid_card_redeemed_cobalt: { total: 1, last24h: 0, saleVelocityPerSeconds: 0 },
+ *       item_sold_dungeons: { total: 268660, last24h: 171, saleVelocityPerSeconds: 0 }
+ *     }
+ */
 export async function MCStats(): Promise<Record<string, Record<string, number>> | string | boolean> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on)
