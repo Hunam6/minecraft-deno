@@ -1,14 +1,14 @@
 import {toUint8Array} from 'https://deno.land/x/base64/mod.ts'
 import {createError} from 'https://deno.land/x/cstack/mod.ts'
 
-const checkAPI = async (): Promise<string | boolean> => {
+async function checkAPI(): Promise<string | boolean> {
   return await MCStatus().then((res: Record<string, string>[]) => {
     if (res[5]['api.mojang.com'] === 'green') return 'api.mojang.com is down.'
     else return true
   })
 }
 
-const infos = async (username: string | string[], prop: string): Promise<string | Record<string, string>[]> => {
+async function infos(username: string | string[], prop: string): Promise<string | Record<string, string>[]> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on)
       if (typeof username === 'string')
@@ -35,7 +35,7 @@ const infos = async (username: string | string[], prop: string): Promise<string 
   })
 }
 
-const textures = async (username: string, prop: string): Promise<string> => {
+async function textures(username: string, prop: string): Promise<string> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
       if (!/^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i.test(username)) username = await UUID(username).then(res => <string>res)
@@ -49,7 +49,7 @@ const textures = async (username: string, prop: string): Promise<string> => {
   })
 }
 
-const stats = async (prop: string): Promise<Record<string, number>> => {
+async function stats(prop: string): Promise<Record<string, number>> {
   return await fetch('https://api.mojang.com/orders/statistics', {
     method: 'POST',
     body: JSON.stringify({
@@ -61,7 +61,7 @@ const stats = async (prop: string): Promise<Record<string, number>> => {
   }).then(res => res.json())
 }
 
-const req = async (method: string, url: string, headers: Record<string, string> = {}, body: Record<string, string> = {}) => {
+async function req(method: string, url: string, headers: Record<string, string> = {}, body: Record<string, string> = {}) {
   const options = {
     method: method,
     headers: headers,
@@ -71,27 +71,27 @@ const req = async (method: string, url: string, headers: Record<string, string> 
   return await fetch(url, options)
 }
 
-export const MCStatus = async (): Promise<Record<string, string>[]> => {
+export async function MCStatus(): Promise<Record<string, string>[]> {
   return await fetch('https://status.mojang.com/check').then(response => response.json())
 }
 
-export const UUID = async (username: string | string[]): Promise<string | Record<string, string>[]> => {
+export async function UUID(username: string | string[]): Promise<string | Record<string, string>[]> {
   return await infos(username, 'id')
 }
 
-export const formatName = async (username: string | string[]): Promise<string | Record<string, string>[]> => {
+export async function formatName(username: string | string[]): Promise<string | Record<string, string>[]> {
   return await infos(username, 'name')
 }
 
-export const skin = async (username: string): Promise<string> => {
+export async function skin(username: string): Promise<string> {
   return await textures(username, 'SKIN')
 }
 
-export const cape = async (username: string): Promise<string> => {
+export async function cape(username: string): Promise<string> {
   return await textures(username, 'CAPE')
 }
 
-export const nameHistory = async (username: string): Promise<Record<string, string | Date>[]> => {
+export async function nameHistory(username: string): Promise<Record<string, string | Date>[]> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on) {
       if (!/^[0-9a-f]{8}[0-9a-f]{4}[1-5][0-9a-f]{3}[89ab][0-9a-f]{3}[0-9a-f]{12}$/i.test(username)) username = await UUID(username).then(res => <string>res)
@@ -108,7 +108,7 @@ export const nameHistory = async (username: string): Promise<Record<string, stri
   })
 }
 
-export const login = async (email: string, password: string, secQues: string[] = []) => {
+export async function login(email: string, password: string, secQues: string[] = []) {
   let token: string
   let needed = true
   return await MCStatus().then(res => {
@@ -184,7 +184,7 @@ export const login = async (email: string, password: string, secQues: string[] =
   })
 }
 
-export const blockedServers = async (): Promise<string[] | boolean | string> => {
+export async function blockedServers(): Promise<string[] | boolean | string> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on)
       return await fetch('https://sessionserver.mojang.com/blockedservers')
@@ -194,7 +194,7 @@ export const blockedServers = async (): Promise<string[] | boolean | string> => 
   })
 }
 
-export const MCStats = async (): Promise<Record<string, Record<string, number>> | string | boolean> => {
+export async function MCStats(): Promise<Record<string, Record<string, number>> | string | boolean> {
   return await checkAPI().then(async (on: boolean | string) => {
     if (on)
       return {
