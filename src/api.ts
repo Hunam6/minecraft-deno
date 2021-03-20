@@ -61,7 +61,7 @@ async function stats(prop: string): Promise<Record<string, number>> {
   }).then(res => res.json())
 }
 
-async function req(method: string, url: string, headers: Record<string, string> = {}, body: Record<string, string> = {}) {
+async function req(method: string, url: string, headers: Record<string, string> = {}, body: Record<string, string | Record<string, string>> = {}) {
   const options = {
     method: method,
     headers: headers,
@@ -97,7 +97,7 @@ export async function MCStatus(): Promise<Record<string, string>[]> {
  *
  *
  *     // UUID(['_hunam', 'syriusgang'])
- *     [ 
+ *     [
  *       "e5a310a065c44c2e9baeea4712481b6c",
  *       "21e83fbae7a8403fbd7bf34060ca8cba"
  *     ]
@@ -175,10 +175,21 @@ export async function nameHistory(username: string): Promise<Record<string, stri
 }
 
 /**
- * WIP
+ * This function is special, it's required for the rename
+ * **sec** is the output of the login function
+ * **skin** is the skin URL
+ * **isSlim** is if the inputted skin is a slim variant
+ *
+ *
+ *     // resetSkin(sec)
+ *     {
+ *       token: "very_long_private_string",
+ *       UUID: "21e83fbae7a8403fbd7bf34060ca8cba"
+ *     }
  */
 export async function login(email: string, password: string, secQues: string[] = []) {
   let token: string
+  let UUID: string
   let needed = true
   return await MCStatus().then(res => {
     if (res[3]['authserver.mojang.com'] !== 'green') return 'authserver.mojang.com is down.'
@@ -191,13 +202,19 @@ export async function login(email: string, password: string, secQues: string[] =
         },
         {
           username: email,
-          password: password
+          password: password,
+          agent: {
+            name: 'Minecraft'
+          }
         }
       )
         .then(res => res.json())
         .then(res => {
           if (res.errorMessage !== undefined) throw createError(new Error(res.errorMessage))
-          else token = res.accessToken
+          else {
+            token = res.accessToken
+            UUID = res.selectedProfile.id
+          }
         })
         .then(() =>
           req('GET', 'https://api.mojang.com/user/security/location', {
@@ -246,11 +263,78 @@ export async function login(email: string, password: string, secQues: string[] =
           return ''
         })
         .then(res => {
-          if (Array.isArray(res) && res.every(item => typeof item === 'string')) return res
+          if (res.constructor !== String && res.every((el: any) => typeof el === 'string')) return res
           if (res.errorMessage !== undefined) throw createError(new Error(res.errorMessage))
-          else return token
+          return {token, UUID}
         })
   })
+}
+
+/**
+ * This function sets a new name.
+ * **sec** is the output of the login function
+ * **newName** is the new name
+ *
+ *
+ *     // rename(sec, '_Hunam')
+ *     {
+ *       token: "very_long_private_string",
+ *       UUID: "21e83fbae7a8403fbd7bf34060ca8cba"
+ *     }
+ */
+export async function rename(sec: Record<string, string>, newName: string) {
+  return await req('PUT', `https://api.minecraftservices.com/minecraft/profile/name/${newName}`, {
+    Authorization: `Bearer ${sec.token}`
+  }).then(res => {
+    if(res.status === 400) throw createError(new Error('Name is invalid, longer than 16 characters or contains characters other than (a-zA-Z0-9_)'))
+    if(res.status === 403) throw createError(new Error('Name is unavailable (Either taken or has not become available)'))
+    else return sec
+  })
+}
+
+/**
+ * This function resets the skin to either Steve's one or Alex's one (see this JS implementation: https://to.to/t1H8p).
+ * **sec** is the output of the login function
+ *
+ *
+ *     // resetSkin(sec)
+ *     {
+ *       token: "very_long_private_string",
+ *       UUID: "21e83fbae7a8403fbd7bf34060ca8cba"
+ *     }
+ */
+export async function resetSkin(sec: Record<string, string>) {
+  return await req('DELETE', `https://api.mojang.com/user/profile/${sec.UUID}/skin`, {
+    Authorization: `Bearer ${sec.token}`
+  }).then(() => sec)
+}
+
+/**
+ * This function sets a custom skin.
+ * **sec** is the output of the login function
+ * **skin** is the skin URL
+ * **isSlim** is if the inputted skin is a slim variant
+ *
+ *
+ *     // setSkin(sec, 'http://textures.minecraft.net/texture/a1b811ea2c2691d2e8c5e125b8d2e8d579b70592d0067ab27325445c40e4867c')
+ *     {
+ *       token: "very_long_private_string",
+ *       UUID: "21e83fbae7a8403fbd7bf34060ca8cba"
+ *     }
+ */
+export async function setSkin(sec: Record<string, string>, skin: string, isSlim = false) {
+  return await req(
+    'POST',
+    `https://api.minecraftservices.com/minecraft/profile/skins`,
+    {
+      'Content-Type': 'application/json; charset=utf-8',
+      Authorization: `Bearer ${sec.token}`
+    },
+    {
+      variant: isSlim ? 'slim' : 'classic',
+      url: skin
+    }
+  ).then(() => sec)
 }
 
 /**
@@ -283,7 +367,7 @@ export async function blockedServers(): Promise<string[] | boolean | string> {
 
 /**
  * This function returns statistics on the sales of Minecraft.
- * 
+ *
  *
  *     // MCStats()
  *     {
