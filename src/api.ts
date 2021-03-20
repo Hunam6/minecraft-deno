@@ -93,6 +93,7 @@ export async function MCStatus(): Promise<Record<string, string>[]> {
 
 /**
  * This function returns the UUID(s) of the inputted username(s).
+ * 
  * **username** is an username or an array of usernames smaller than 10
  *
  *
@@ -108,6 +109,7 @@ export async function UUID(username: string | string[]): Promise<string | Record
 
 /**
  * This function returns the formatted username(s) of the inputted username(s).
+ * 
  * **username** is an username or an array of usernames smaller than 10
  *
  *
@@ -123,6 +125,7 @@ export async function formatName(username: string | string[]): Promise<string | 
 
 /**
  * This function returns the skin texture file of the inputted username.
+ * 
  * **username** is an username or an UUID
  *
  *
@@ -135,6 +138,7 @@ export async function skin(username: string): Promise<string> {
 
 /**
  * This function returns the cape texture file of the inputted username.
+ * 
  * **username** is an username or an UUID
  *
  *
@@ -147,6 +151,7 @@ export async function cape(username: string): Promise<string> {
 
 /**
  * This function returns the names history of an account.
+ * 
  * **username** is an username or an UUID
  *
  *
@@ -176,8 +181,11 @@ export async function nameHistory(username: string): Promise<Record<string, stri
 
 /**
  * This function is special, it's required for the rename
+ * 
  * **sec** is the output of the login function
+ * 
  * **skin** is the skin URL
+ * 
  * **isSlim** is if the inputted skin is a slim variant
  *
  *
@@ -272,7 +280,9 @@ export async function login(email: string, password: string, secQues: string[] =
 
 /**
  * This function sets a new name.
+ * 
  * **sec** is the output of the login function
+ * 
  * **newName** is the new name
  *
  *
@@ -294,6 +304,7 @@ export async function rename(sec: Record<string, string>, newName: string) {
 
 /**
  * This function resets the skin to either Steve's one or Alex's one (see this JS implementation: https://to.to/t1H8p).
+ * 
  * **sec** is the output of the login function
  *
  *
@@ -311,8 +322,11 @@ export async function resetSkin(sec: Record<string, string>) {
 
 /**
  * This function sets a custom skin.
+ * 
  * **sec** is the output of the login function
+ * 
  * **skin** is the skin URL
+ * 
  * **isSlim** is if the inputted skin is a slim variant
  *
  *
