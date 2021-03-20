@@ -6,8 +6,10 @@
 ### Example usage
 
 ```typescript
-import {nameHistory} from 'https://deno.land/x/minecraft/mod.ts'
+import {nameHistory, login, setSkin} from 'https://deno.land/x/minecraft/mod.ts'
 nameHistory('_Hunam').then(res => console.log(res))
+login('my e-mail', 'my password')
+  .then(sec => setSkin(sec, 'http://textures.minecraft.net/texture/a1b811ea2c2691d2e8c5e125b8d2e8d579b70592d0067ab27325445c40e4867c'))
 ```
 
 **Output:**
@@ -18,6 +20,7 @@ nameHistory('_Hunam').then(res => console.log(res))
   { name: "king_jump", changedToAt: 2017-03-25T10:04:40.000Z },
   { name: "_Hunam", changedToAt: 2018-08-30T09:23:49.000Z }
 ]
+//_Hunam's skin changed too
 ```
 
 ### Documentation
